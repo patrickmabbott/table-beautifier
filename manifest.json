@@ -1,0 +1,21 @@
+{
+  "name": "Table Beautifier",
+  "version": "1.1",
+  "description": "Replaces simple tables with more fully-featured ones on the client side.",
+  "manifest_version": 3,
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["ag-grid-community.min.js", "content.js"],
+      "css": []
+    }
+  ],
+  "permissions": ["favicon"],
+  "web_accessible_resources": [
+    {
+      "resources": ["_favicon/*"],
+      "matches": ["<all_urls>"],
+      "use_dynamic_url": true
+    }
+  ]
+}
