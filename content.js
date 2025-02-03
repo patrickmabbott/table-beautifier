@@ -12,15 +12,15 @@ window.onload = () => {
 
             let headerFields = [];
             let skipFirstRow = false;
+            // Preferably, we would always look for 'th'. However, some tables might use 'td' and some might even use a mix of both.
+            const selectorGroup = 'th, td';
             if (!header) {
-                headerFields = [...table.querySelector('tr').querySelectorAll('th')].map(td => td.innerText);
-                // If that didn't work, assume they are just using 'td' for everything.
-                if (headerFields.length === 0) {
-                    headerFields = [...table.querySelector('tr').querySelectorAll('td')].map(td => td.innerText);
-                }
+                // Leave out columns with empty headers. They are likely just meant for spacing.
+                headerFields = [...table.querySelector('tr').querySelectorAll(selectorGroup)].map(td => td.innerText).filter(header => header);
                 skipFirstRow = true;
             } else {
-                headerFields = [...header.querySelectorAll('th')].map(th => th.innerText);
+                // Leave out columns with empty headers. They are likely just meant for spacing.
+                headerFields = [...header.querySelectorAll(selectorGroup)].map(th => th.innerText).filter(header => header);
             }
 
             const body = table.querySelector('tbody');
@@ -31,29 +31,29 @@ window.onload = () => {
                     // Skip the first row if we've already processed it as the header.
                     .filter((_, idx) => skipFirstRow ? idx !== 0 : true)
                     .map( (row) => {
-                    const cells = [...row.querySelectorAll('td')];
-                    return cells.reduce((prev, cell, idx) => {
-                        const value = cell.innerText;
-                        const associatedHeader = headerFields[idx];
-                        // If we can't find an associated header, that's a strong sign that the table isn't reasonably transformable and we should abandon.
-                        if (!associatedHeader) {
-                            throw new Error("Table is not transformable.");
-                        }
-                        return {
-                            ...prev,
-                            [associatedHeader]: value,
-                        }
-                    }, {});
+                        const cells = [...row.querySelectorAll('td')];
+                        return cells // Skip cells that are empty or undefined.
+                            .filter( entry => entry.innerText)
+                            .reduce((prev, cell, idx) => {
+                                const value = cell.innerText;
+                                const associatedHeader = headerFields[idx];
+                                // If we can't find an associated header, that's a strong sign that the table isn't reasonably transformable and we should abandon.
+                                if (!associatedHeader) {
+                                    throw new Error(`Table is not transformable. Could not find associated header. ${cell} ${idx} ${value} ${headerFields}`);
+                                }
+                                return {
+                                    ...prev,
+                                    [associatedHeader]: value,
+                                }
+                            }, {});
                 });
             } catch(e) {
-                console.error("Table is not transformable.");
+                console.error(`Table is not transformable. Error: ${e}`);
                 return;
             }
 
             // Check if we were able to produce a sensible JSON object from the table.
             // If not, abandon.
-
-
             let newTable = null;
             // Save the parent of the table so we can insert new components.
             const tableParent = table.parentNode;
