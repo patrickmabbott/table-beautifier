@@ -101,12 +101,7 @@ window.onload = () => {
                 // tableParent.appendChild(gridDiv);
                 agGrid.createGrid(newTable, gridOptions);
             }
-
-            const exportButton = document.createElement("button");
-            exportButton.innerText = "Export to CSV";
-            // Now, go ahead and add an export button.
-            tableParent.insertBefore(exportButton, table);
-            exportButton.onclick = () => {
+            const exportCSV = () => {
                 const jsonToCsv = (jsonArray) => {
                     if (!jsonArray.length) {
                         return [];
@@ -128,7 +123,13 @@ window.onload = () => {
                 a.download = 'table.csv';
                 a.click();
                 URL.revokeObjectURL(url);
-            };
+            }
+
+            const exportButton = document.createElement("button");
+            exportButton.innerText = "Export to CSV";
+            // Now, go ahead and add an export button.
+            tableParent.insertBefore(exportButton, table);
+            exportButton.onclick = exportCSV;
 
             // Now, add the beautify button.
             const beautifyButton = document.createElement("button");
